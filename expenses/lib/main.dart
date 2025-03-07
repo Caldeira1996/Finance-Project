@@ -4,6 +4,7 @@ import 'package:expenses/pages/user_management.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io';
 import 'dart:math';
 import 'components/transaction_form.dart';
@@ -14,11 +15,30 @@ import 'login/login.dart';
 import 'login/home_screen.dart';
 import 'package:http/http.dart';
 
-void main() => runApp(const ExpensesApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null);
+  runApp(const ExpensesApp());
+}
 
-class ExpensesApp extends StatelessWidget {
+//void main() => runApp(const ExpensesApp());
+
+class ExpensesApp extends StatefulWidget {
   const ExpensesApp({Key? key}) : super(key: key);
   //final ThemeData tema = ThemeData();
+
+  @override
+  _ExpensesAppState createState() => _ExpensesAppState();
+}
+
+class _ExpensesAppState extends State<ExpensesApp> {
+  bool _isDarkMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +47,9 @@ class ExpensesApp extends StatelessWidget {
       initialRoute: '/login', //Define a tela inicial para login
       routes: {
         '/login': (context) => Login(), //Tela de login
-        '/home': (context) => MyHomePage(),
+        '/home':
+            (context) =>
+                MyHomePage(isDarkMode: _isDarkMode, toggleTheme: _toggleTheme),
         '/register': (context) => RegisterScreen(),
         '/user-management':
             (context) =>
@@ -40,6 +62,7 @@ class ExpensesApp extends StatelessWidget {
           seedColor: Colors.amber,
           primary: Colors.purple,
           secondary: Colors.amber,
+          brightness: Brightness.light,
         ),
         textTheme: const TextTheme(
           titleLarge: TextStyle(
@@ -63,12 +86,50 @@ class ExpensesApp extends StatelessWidget {
           ),
         ),
       ),
+      darkTheme: ThemeData(
+        useMaterial3: false,
+        fontFamily: 'QuickSand',
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.amber,
+          primary: Colors.purple,
+          secondary: Colors.amber,
+          brightness: Brightness.dark,
+        ),
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          labelLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.purple,
+          foregroundColor: Colors.white,
+          titleTextStyle: TextStyle(
+            fontFamily: 'OpenSans',
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      //themeMode: ThemeMode.system, // Segue o tema do sistema claro/escuro
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  // MyHomePage({Key? key}) : super(key: key);
+
+  final bool isDarkMode;
+  final Function toggleTheme;
+
+  MyHomePage({Key? key, required this.isDarkMode, required this.toggleTheme})
+    : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -146,29 +207,161 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //Função para remover transação
   void _removeTransaction(String id) async {
-    try {
-      //Remove localmente do banco de dados
-      await DatabaseHelper.instance.deleteTransaction(id);
-      setState(() {
-        _transactions.removeWhere((tr) => tr.id == id);
-      });
-    } catch (e) {
-      print('Erro ao remover a transação: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao remover transação!'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    // Exibe o dialogo de confirmação antes de remover
+    final shouldRemove =
+        await showDialog<bool>(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+                elevation: 5,
+                title: const Text('Excluir Transação'),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                content: const Text(
+                  'Você tem certeza que deseja excluir esta transação?',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.grey.shade200,
+                      ),
+                      foregroundColor: MaterialStateProperty.all(Colors.black),
+                      padding: MaterialStateProperty.all(
+                        EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Cancelar'),
+                    onPressed:
+                        () => Navigator.of(
+                          ctx,
+                        ).pop(false), // fecha o ialog sem remover
+                  ),
+                  TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.red.shade700,
+                      ),
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      padding: MaterialStateProperty.all(
+                        EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      'Confirmar',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    onPressed:
+                        () => Navigator.of(ctx).pop(true), // Confirma a remoção
+                  ),
+                ],
+              ),
+        ) ??
+        false; // Se o usuário fechar o dialog sem escolher, não remove a transação
+
+    // Se a confirmação for verdadedira, procede com a remoção
+    if (shouldRemove) {
+      try {
+        await DatabaseHelper.instance.deleteTransaction(
+          id,
+        ); // Remove o banco e dados
+        setState(() {
+          _transactions.removeWhere(
+            (tr) => tr.id == id,
+          ); // remove da lista local
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Transação removida com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        print('Erro ao remover a transação: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao remover transação! ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
+  // try {
+  //   //Remove localmente do banco de dados
+  //   await DatabaseHelper.instance.deleteTransaction(id);
+  //   setState(() {
+  //     _transactions.removeWhere((tr) => tr.id == id);
+  //   });
+  // } catch (e) {
+  //   print('Erro ao remover a transação: $e');
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('Erro ao remover transação!'),
+  //       backgroundColor: Colors.red,
+  //     ),
+  //   );
+  // }
+  //}
 
   // Função para abrir o formulário de transação
   _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // permite que o modal ocupe mais espaço
+      backgroundColor: Colors.transparent, // Fundo transparente
       builder: (_) {
-        return TransactionForm(_addTransaction);
+        //return TransactionForm(_addTransaction);
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Adicionar Transação',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close, color: Colors.red),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              TransactionForm(_addTransaction),
+            ],
+          ),
+        );
       },
     );
   }
@@ -270,6 +463,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.pop(context); //Fecha o menu
                   },
                 ),
+
+                ListTile(
+                  leading: Icon(Icons.wallet),
+                  title: Text('Carteira'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+
                 ListTile(
                   leading: Icon(Icons.settings),
                   title: Text('Configurações'),
@@ -291,6 +493,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
 
+                const SizedBox(height: 10),
+
+                ListTile(
+                  leading: Icon(
+                    // _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  ),
+                  title: Text(widget.isDarkMode ? 'Tema Claro' : 'Tema Escuro'),
+                  onTap: () {
+                    widget.toggleTheme(); // altera o tema
+                    Navigator.pop(context); // fecha o menu
+                  },
+                ),
+
+                const SizedBox(height: 10),
+
                 ListTile(
                   leading: Icon(Icons.exit_to_app),
                   title: Text('Sair'),
@@ -311,7 +529,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: CupertinoColors.activeBlue,
                     padding: EdgeInsets.all(16),
                     borderRadius: BorderRadius.circular(30),
-                    child: Icon(CupertinoIcons.add, color: Colors.white),
+                    child: Text(
+                      'Adicionar',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: () => _openTransactionFormModal(context),
                   )
                   : FloatingActionButton(

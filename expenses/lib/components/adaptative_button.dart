@@ -28,7 +28,7 @@ class AdaptativeButton extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           child: Text(
-            'label',
+            'Adicionar Transação',
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
           onPressed: onPressed,

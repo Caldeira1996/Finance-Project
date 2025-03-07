@@ -1,1 +1,0 @@
- C:\\Users\\Caldeira\\OneDrive\\Documentos\\Curso_Flutter\\expenses\\.dart_tool\\flutter_build\\2297b8037a8b39f8d59bcf267d2705a6\\dart_build_result.json: 

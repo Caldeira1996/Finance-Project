@@ -20,21 +20,24 @@ class ChartBar extends StatelessWidget {
     return Column(
       // Exibe os elementos de forma vertical (em coluna).
       children: [
+        //Exibe a porcentagem no topo, mas oculta se for 0
+        const SizedBox(height: 5),
         // Exibe o valor formatado como moeda (exemplo: R$100.00).
         SizedBox(
-          height: 20, // Define a altura do container do valor.
+          height: 25, // Define a altura do container do valor.
           child: FittedBox(
             // O FittedBox ajusta o texto para caber no espaço disponível.
             child: Text(
-              '${value.toStringAsFixed(2)}',
-            ), // Formata o valor para exibir com 2 casas decimais.
+              '${value.toStringAsFixed(2)}', // Formata o valor para exibir com 2 casas decimais.
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
-        const SizedBox(height: 5), // Adiciona um espaço de 5 pixels.
+        const SizedBox(height: 8), // Adiciona um espaço de 5 pixels.
         // Barra de gráfico ajustada de acordo com a porcentagem.
         SizedBox(
-          height: 60, // Define a altura da barra do gráfico.
-          width: 10, // Define a largura da barra do gráfico.
+          height: 70, // Define a altura da barra do gráfico.
+          width: 15, // Define a largura da barra do gráfico.
           child: Stack(
             // Stack permite sobrepor widgets.
             alignment:
@@ -59,16 +62,35 @@ class ChartBar extends StatelessWidget {
                   ), // Bordas arredondadas.
                 ),
               ),
+              // Barra Coloriad animaa proporcional ao valor
+              AnimatedContainer(
+                duration: const Duration(microseconds: 500),
+                height: 80 * percentage, // Altura baseaa na porcentagem
+                decoration: BoxDecoration(
+                  color:
+                      percentage > 0.7
+                          ? Colors
+                              .red // Alta porcentagem => vermelho
+                          : percentage > 0.4
+                          ? Colors
+                              .orange // méia porcentagem => laranja
+                          : Colors.green, // Baixa porcentagem => verde
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+
               // A parte da barra que representa o valor proporcional.
               FractionallySizedBox(
                 heightFactor:
                     percentage, // A altura da barra é proporcional à porcentagem.
                 child: Container(
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context)
-                            .colorScheme
-                            .primary, // Cor da barra, baseada no tema do app.
+                    gradient: const LinearGradient(
+                      colors: [Colors.blue, Colors.purple], // Cor da barra
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+
                     borderRadius: BorderRadius.circular(
                       5,
                     ), // Bordas arredondadas para a barra.
@@ -80,7 +102,21 @@ class ChartBar extends StatelessWidget {
         ),
         const SizedBox(height: 5), // Adiciona um espaço de 5 pixels.
         // Exibe o rótulo, que é o dia da semana (ou qualquer outro texto para a barra).
-        Text(label),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold, // Negrito para melhor leitura
+            fontSize: 14,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        if (percentage > 0)
+          Text(
+            '${(percentage * 100).toString()}%',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
       ],
     );
   }

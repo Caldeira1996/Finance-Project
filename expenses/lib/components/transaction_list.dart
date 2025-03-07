@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 // Widget que exibe a lista de transações
 class TransactionList extends StatelessWidget {
@@ -49,7 +50,14 @@ class TransactionList extends StatelessWidget {
             return Card(
               elevation: 5, // Sombra no card
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 15,
+                ),
                 leading: CircleAvatar(
                   backgroundColor: Colors.purple, // Cor de fundo do avatar
                   radius: 30, // Define o tamanho do círculo
@@ -73,9 +81,7 @@ class TransactionList extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  DateFormat(
-                    'd MMM y',
-                  ).format(tr.date), // Exibe a data formatada
+                  timeago.format(tr.date), // Exibe a data formatada
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,

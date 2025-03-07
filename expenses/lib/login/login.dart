@@ -149,7 +149,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                const SizedBox(height: 150),
+                const SizedBox(height: 100),
 
                 // Link para cadastro
                 TextButton(
@@ -174,6 +174,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
+                SizedBox(height: 30),
+                Container(child: Text('Desenvolvido por Lucas Caldeira')),
               ],
             ),
           ),

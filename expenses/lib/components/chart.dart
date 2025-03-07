@@ -2,15 +2,16 @@ import 'package:expenses/models/transaction.dart'; // Importa o modelo Transacti
 import 'package:intl/intl.dart'; // Importa a biblioteca intl para formatação de datas.
 import 'package:flutter/material.dart'; // Importa a biblioteca Material do Flutter para criação da interface.
 import 'chart_bar.dart'; // Importa o widget ChartBar, que é utilizado para exibir as barras do gráfico.
+//import 'package:intl/date_symbol_data_local.dart';
 
 class Chart extends StatelessWidget {
   final List<Transaction>
-      recentTransaction; // Recebe a lista de transações recentes que será exibida no gráfico.
+  recentTransaction; // Recebe a lista de transações recentes que será exibida no gráfico.
 
   const Chart(this.recentTransaction, {Key? key})
-      : super(
-            key:
-                key); // Construtor que inicializa o widget com as transações recentes.
+    : super(
+        key: key,
+      ); // Construtor que inicializa o widget com as transações recentes.
 
   // Calcula as transações agrupadas por dia da semana (últimos 7 dias).
   List<Map<String, Object>> get groupedTransactions {
@@ -31,20 +32,21 @@ class Chart extends StatelessWidget {
         bool sameYear = recentTransaction[i].date.year == weekDay.year;
 
         if (sameDay && sameMonth && sameYear) {
-          totalSum += recentTransaction[i]
-              .value; // Soma o valor das transações que ocorreram no mesmo dia.
+          totalSum +=
+              recentTransaction[i]
+                  .value; // Soma o valor das transações que ocorreram no mesmo dia.
         }
       }
 
       return {
         // Retorna o dia e o total acumulado de transações desse dia.
-        'day': DateFormat.E().format(
-            weekDay)[0], // Formata o nome do dia da semana (primeira letra).
+        'day':
+            DateFormat.E('pt_BR')
+                .format(weekDay)[0]
+                .toUpperCase(), // Formata o nome do dia da semana (primeira letra).
         'value': totalSum, // Valor total das transações do dia.
       };
-    })
-        .reversed
-        .toList(); // Reverte a lista para exibir os dias em ordem cronológica.
+    }).reversed.toList(); // Reverte a lista para exibir os dias em ordem cronológica.
   }
 
   // Calcula o valor total das transações da semana.
@@ -60,33 +62,39 @@ class Chart extends StatelessWidget {
     return Card(
       // Cria um cartão para exibir o gráfico.
       elevation: 6, // Define a elevação do cartão, criando um efeito de sombra.
-      margin: const EdgeInsets.all(20), // Define a margem ao redor do cartão.
+      margin: const EdgeInsets.all(8), // Define a margem ao redor do cartão.
       child: Padding(
         // Adiciona preenchimento interno ao cartão.
         padding: const EdgeInsets.all(10),
         child: Row(
           // Cria uma linha para organizar as barras de gráfico.
-          mainAxisAlignment: MainAxisAlignment
-              .spaceAround, // Alinha as barras de forma uniforme na linha.
-          children: groupedTransactions.map((tr) {
-            // Itera sobre as transações agrupadas por dia.
-            return Flexible(
-              // Faz as barras flexíveis para que se ajustem ao espaço disponível.
-              fit: FlexFit
-                  .tight, // As barras vão preencher igualmente o espaço disponível.
-              child: ChartBar(
-                // Para cada transação, cria uma barra no gráfico.
-                label: tr['day']
-                    as String, // Define o rótulo da barra como o dia da semana.
-                value: tr['value']
-                    as double, // Define o valor total da barra para aquele dia.
-                percentage: _weekTotalValue == 0
-                    ? 0 // Se o total da semana for zero, evita divisão por zero.
-                    : (tr['value'] as double) /
-                        _weekTotalValue, // Calcula a porcentagem do valor daquele dia em relação ao total da semana.
-              ),
-            );
-          }).toList(), // Converte o resultado em uma lista e cria as barras.
+          mainAxisAlignment:
+              MainAxisAlignment
+                  .spaceAround, // Alinha as barras de forma uniforme na linha.
+          children:
+              groupedTransactions.map((tr) {
+                // Itera sobre as transações agrupadas por dia.
+                return Flexible(
+                  // Faz as barras flexíveis para que se ajustem ao espaço disponível.
+                  fit:
+                      FlexFit
+                          .tight, // As barras vão preencher igualmente o espaço disponível.
+                  child: ChartBar(
+                    // Para cada transação, cria uma barra no gráfico.
+                    label:
+                        tr['day']
+                            as String, // Define o rótulo da barra como o dia da semana.
+                    value:
+                        tr['value']
+                            as double, // Define o valor total da barra para aquele dia.
+                    percentage:
+                        _weekTotalValue == 0
+                            ? 0 // Se o total da semana for zero, evita divisão por zero.
+                            : (tr['value'] as double) /
+                                _weekTotalValue, // Calcula a porcentagem do valor daquele dia em relação ao total da semana.
+                  ),
+                );
+              }).toList(), // Converte o resultado em uma lista e cria as barras.
         ),
       ),
     );
