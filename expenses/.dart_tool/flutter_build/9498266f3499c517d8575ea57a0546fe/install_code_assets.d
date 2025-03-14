@@ -1,0 +1,1 @@
+ C:\\Users\\Caldeira\\OneDrive\\Documentos\\Curso_Flutter\\expenses\\.dart_tool\\flutter_build\\9498266f3499c517d8575ea57a0546fe\\native_assets.json: 

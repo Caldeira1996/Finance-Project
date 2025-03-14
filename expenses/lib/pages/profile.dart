@@ -66,6 +66,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _deleteImage() {
+    setState(() {
+      _image = null; // remmove a imagem
+    });
+    _saveProfile(); // atualiza o banco de dados para remover o caminho da imagem
+  }
+
   void _openImageFullScreen() {
     if (_image != null) {
       Navigator.of(context).push(
@@ -113,89 +120,226 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Perfil salvo com sucesso!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Perfil salvo com sucesso!',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Perfil')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
-                  child:
-                      _image == null ? Icon(Icons.camera_alt, size: 50) : null,
-                ),
-              ),
+      appBar: AppBar(
+        title: Text(
+          'Perfil',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.purple, // cor de fundo do Appbar
+        elevation: 10,
+        centerTitle: true,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.purple[50]!, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
 
-              if (_image != null)
-                TextButton(
-                  onPressed: _openImageFullScreen,
-                  child: Text('Selecione uma imagem'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: _image != null ? FileImage(_image!) : null,
+                    backgroundColor: Colors.grey[200], // cor dde fundo
+                    foregroundColor: Colors.blue,
+                    child:
+                        _image == null
+                            ? Icon(
+                              Icons.camera_alt,
+                              size: 50,
+                              color: Colors.grey[600],
+                            )
+                            : null,
+                  ),
                 ),
 
-              SizedBox(height: 20),
+                if (_image != null) ...[
+                  SizedBox(height: 10),
+                  Center(
+                    child: Wrap(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _deleteImage,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 12,
+                            ),
+                            minimumSize: Size(0, 0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            elevation: 5,
+                            shadowColor: Colors.redAccent,
+                          ),
+                          icon: Icon(Icons.delete, size: 20),
+                          label: Text('Excluir Foto'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
+                SizedBox(height: 20),
+
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Nome',
+                    labelStyle: TextStyle(color: Colors.purple),
+                    prefixIcon: Icon(Icons.person, color: Colors.purple),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.purple),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[300],
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 20,
+                    ),
+                  ),
+                  style: TextStyle(fontSize: 18),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira seu nome';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu nome';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _ageController,
-                decoration: InputDecoration(
-                  labelText: 'Idade',
-                  border: OutlineInputBorder(),
+                SizedBox(height: 20),
+
+                TextFormField(
+                  controller: _ageController,
+                  decoration: InputDecoration(
+                    labelText: 'Idade',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                    prefixIcon: Icon(
+                      Icons.calendar_today,
+                      color: Colors.purple,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.purple),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[300],
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 20,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(fontSize: 18),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira sua idade';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua idaed';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _bioController,
-                decoration: InputDecoration(
-                  labelText: 'Bio',
-                  border: OutlineInputBorder(),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _bioController,
+                  decoration: InputDecoration(
+                    labelText: 'Bio',
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                    prefixIcon: Icon(Icons.edit, color: Colors.purple),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.purple),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[300],
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 20,
+                    ),
+                  ),
+                  maxLines: 3,
+                  style: TextStyle(fontSize: 18),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira uma bio caso deseja';
+                    }
+                    return null;
+                  },
                 ),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira uma bio caso deseja';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveProfile,
-                child: Text('Salvar Perfil'),
-              ),
-            ],
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple, // cor de fundo
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 5,
+                    shadowColor: Colors.purpleAccent,
+                  ),
+                  child: Text(
+                    'Salvar Perfil',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

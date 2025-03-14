@@ -1,0 +1,197 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.expenses"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+11-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:3:5-80
+11-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:3:22-77
+12    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+12-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:4:5-81
+12-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:4:22-78
+13    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+13-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:5:5-76
+13-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:5:22-74
+14
+15    <permission
+15-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+16        android:name="com.example.expenses.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+16-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+17        android:protectionLevel="signature" />
+17-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+18
+19    <uses-permission android:name="com.example.expenses.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+19-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+19-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+20
+21    <application
+21-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:7:5-29:19
+22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+22-->[androidx.core:core:1.13.1] C:\Users\Caldeira\.gradle\caches\transforms-3\f86e2597725f0cb13b5840cd121432db\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+23        android:extractNativeLibs="true"
+24        android:icon="@mipmap/ic_launcher"
+24-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:9:9-43
+25        android:label="expenses" >
+25-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:8:9-33
+26        <activity
+26-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:10:9-25:20
+27            android:name="com.example.expenses.MainActivity"
+27-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:11:13-41
+28            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+28-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:15:13-163
+29            android:exported="true"
+29-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:12:13-36
+30            android:hardwareAccelerated="true"
+30-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:16:13-47
+31            android:launchMode="singleTop"
+31-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:13:13-43
+32            android:theme="@style/LaunchTheme"
+32-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:14:13-47
+33            android:windowSoftInputMode="adjustResize" >
+33-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:17:13-55
+34            <meta-data
+34-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:18:13-20:57
+35                android:name="io.flutter.embedding.android.NormalTheme"
+35-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:19:17-72
+36                android:resource="@style/NormalTheme" />
+36-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:20:17-54
+37
+38            <intent-filter>
+38-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:21:13-24:29
+39                <action android:name="android.intent.action.MAIN" />
+39-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:22:17-68
+39-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:22:25-66
+40
+41                <category android:name="android.intent.category.LAUNCHER" />
+41-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:23:17-76
+41-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:23:27-74
+42            </intent-filter>
+43        </activity>
+44
+45        <meta-data
+45-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:26:9-28:33
+46            android:name="flutterEmbedding"
+46-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:27:13-44
+47            android:value="2" />
+47-->C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\android\app\src\main\AndroidManifest.xml:28:13-30
+48
+49        <provider
+49-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:9:9-17:20
+50            android:name="io.flutter.plugins.imagepicker.ImagePickerFileProvider"
+50-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:10:13-82
+51            android:authorities="com.example.expenses.flutter.image_provider"
+51-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:11:13-74
+52            android:exported="false"
+52-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:12:13-37
+53            android:grantUriPermissions="true" >
+53-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:13:13-47
+54            <meta-data
+54-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:14:13-16:75
+55                android:name="android.support.FILE_PROVIDER_PATHS"
+55-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:15:17-67
+56                android:resource="@xml/flutter_image_picker_file_paths" />
+56-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:16:17-72
+57        </provider> <!-- Trigger Google Play services to install the backported photo picker module. -->
+58        <service
+58-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:19:9-31:19
+59            android:name="com.google.android.gms.metadata.ModuleDependencies"
+59-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:20:13-78
+60            android:enabled="false"
+60-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:21:13-36
+61            android:exported="false" >
+61-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:22:13-37
+62            <intent-filter>
+62-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:24:13-26:29
+63                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+63-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:25:17-94
+63-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:25:25-91
+64            </intent-filter>
+65
+66            <meta-data
+66-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:28:13-30:36
+67                android:name="photopicker_activity:0:required"
+67-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:29:17-63
+68                android:value="" />
+68-->[:image_picker_android] C:\Users\Caldeira\OneDrive\Documentos\Curso_Flutter\expenses\build\image_picker_android\intermediates\merged_manifest\release\AndroidManifest.xml:30:17-33
+69        </service>
+70
+71        <uses-library
+71-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:23:9-25:40
+72            android:name="androidx.window.extensions"
+72-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:24:13-54
+73            android:required="false" />
+73-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:25:13-37
+74        <uses-library
+74-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:26:9-28:40
+75            android:name="androidx.window.sidecar"
+75-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:27:13-51
+76            android:required="false" />
+76-->[androidx.window:window:1.2.0] C:\Users\Caldeira\.gradle\caches\transforms-3\bdde8c321b888da2fc0669bd27aedd71\transformed\jetified-window-1.2.0\AndroidManifest.xml:28:13-37
+77
+78        <provider
+78-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:24:9-32:20
+79            android:name="androidx.startup.InitializationProvider"
+79-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:25:13-67
+80            android:authorities="com.example.expenses.androidx-startup"
+80-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:26:13-68
+81            android:exported="false" >
+81-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:27:13-37
+82            <meta-data
+82-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+83                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+83-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+84                android:value="androidx.startup" />
+84-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Caldeira\.gradle\caches\transforms-3\5d8a3814440ed38892ed624179822921\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+85            <meta-data
+85-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+86                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+86-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+87                android:value="androidx.startup" />
+87-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+88        </provider>
+89
+90        <receiver
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+91            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+92            android:directBootAware="false"
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+93            android:enabled="true"
+93-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+94            android:exported="true"
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+95            android:permission="android.permission.DUMP" >
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+96            <intent-filter>
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+97                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+97-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+97-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+98            </intent-filter>
+99            <intent-filter>
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+100                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+100-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+100-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+101            </intent-filter>
+102            <intent-filter>
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+103                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+103-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+103-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+104            </intent-filter>
+105            <intent-filter>
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+106                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Caldeira\.gradle\caches\transforms-3\31b0bb3d3c753b301a475e0c8ffe0ff5\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+107            </intent-filter>
+108        </receiver>
+109    </application>
+110
+111</manifest>
