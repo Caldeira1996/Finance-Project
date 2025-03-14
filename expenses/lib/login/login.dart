@@ -149,7 +149,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                const SizedBox(height: 100),
+                const SizedBox(height: 60),
 
                 // Link para cadastro
                 TextButton(

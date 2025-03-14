@@ -114,7 +114,7 @@ class ChartBar extends StatelessWidget {
 
         if (percentage > 0)
           Text(
-            '${(percentage * 100).toString()}%',
+            '${(percentage * 100).toStringAsFixed(2)}%',
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
       ],

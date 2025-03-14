@@ -1,10 +1,13 @@
 import 'package:expenses/bd/bd.dart';
 import 'package:expenses/login/register.dart';
+import 'package:expenses/pages/profile.dart';
 import 'package:expenses/pages/user_management.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:photo_view/photo_view.dart';
 import 'dart:io';
 import 'dart:math';
 import 'components/transaction_form.dart';
@@ -301,22 +304,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
   }
-  // try {
-  //   //Remove localmente do banco de dados
-  //   await DatabaseHelper.instance.deleteTransaction(id);
-  //   setState(() {
-  //     _transactions.removeWhere((tr) => tr.id == id);
-  //   });
-  // } catch (e) {
-  //   print('Erro ao remover a transação: $e');
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text('Erro ao remover transação!'),
-  //       backgroundColor: Colors.red,
-  //     ),
-  //   );
-  // }
-  //}
 
   // Função para abrir o formulário de transação
   _openTransactionFormModal(BuildContext context) {
@@ -397,8 +384,9 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
 
     final PreferredSizeWidget appBar = AppBar(
-      title: const Text('Despesas Pessoais'),
+      title: const Text('Finanças'),
       actions: actions,
+      elevation: 5,
     );
 
     // Adicionando Media query
@@ -414,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             if (_showChart || !isLandscape)
               SizedBox(
-                height: availableHeight * (isLandscape ? 0.60 : 0.25),
+                height: availableHeight * (isLandscape ? 0.75 : 0.25),
                 child: Chart(_recentTransactions),
               ),
             if (!_showChart || !isLandscape)
@@ -426,6 +414,35 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+
+    //Modal para abrir a imagem no menu ao lado (DRAWER)
+    void _openImageFullScreen(String _image) {
+      if (_image != null && _image.isNotEmpty) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder:
+                (context) => Scaffold(
+                  appBar: AppBar(
+                    title: Text('Imagem de Perfil'),
+                    backgroundColor: Colors.black,
+                  ),
+                  body: PhotoView(
+                    imageProvider: FileImage(File(_image!)),
+                    minScale: PhotoViewComputedScale.contained,
+                    maxScale: PhotoViewComputedScale.covered * 2,
+                    backgroundDecoration: BoxDecoration(color: Colors.black),
+                  ),
+                ),
+          ),
+        );
+      }
+    }
+
+    Future<Map<String, dynamic>?> _getProfile() async {
+      final userId = 1;
+      final dbHelper = DatabaseHelper.instance;
+      return await dbHelper.getProfile(userId);
+    }
 
     return Platform.isIOS
         ? CupertinoPageScaffold(
@@ -441,13 +458,36 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                UserAccountsDrawerHeader(
-                  accountName: Text('Nome de usuário'),
-                  accountEmail: Text('email@dominio.com'),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, color: Colors.purple),
-                  ),
+                FutureBuilder<Map<String, dynamic>?>(
+                  future: _getProfile(), // Função para caminho da foto
+                  builder: (context, snapshot) {
+                    final profile = snapshot.data;
+                    final imagePath = profile?['imagePath'];
+
+                    return UserAccountsDrawerHeader(
+                      accountName: Text(profile?['name'] ?? 'Nome de usuário'),
+                      accountEmail: Text('email@dominio.com'),
+                      currentAccountPicture: GestureDetector(
+                        onTap: () {
+                          if (imagePath != null) {
+                            _openImageFullScreen(imagePath);
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          backgroundImage:
+                              imagePath != null
+                                  ? FileImage(File(imagePath))
+                                  : null,
+
+                          child:
+                              imagePath == null
+                                  ? Icon(Icons.person, color: Colors.purple)
+                                  : null,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.home),
@@ -461,12 +501,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Perfil'),
                   onTap: () {
                     Navigator.pop(context); //Fecha o menu
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    );
                   },
                 ),
 
                 ListTile(
                   leading: Icon(Icons.wallet),
                   title: Text('Carteira'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+
+                ListTile(
+                  leading: Icon(Icons.add_chart_outlined),
+                  title: Text('Investimentos'),
                   onTap: () {
                     Navigator.pop(context);
                   },

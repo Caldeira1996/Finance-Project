@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:sqflite/sqflite.dart' hide Transaction;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,7 +29,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -70,6 +71,19 @@ class DatabaseHelper {
     $columnVerificationCode TEXT
     )
     ''');
+
+    // tabela para o profile
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS profile (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      age TEXT,
+      bio TEXT,
+      imagePath TEXT,
+      FOREIGN KEY (userId) REFERENCES users(id)
+)
+''');
   }
 
   // FUNÇÃO PARA GERAR O HASH DA SENHA
@@ -118,6 +132,27 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE $tableTransactions ADD COLUMN $columnIsSynced INTEGER NOT NULL DEFAULT 0',
       );
+    }
+    if (oldVersion < 3) {
+      //Verifica se a tabela já existe
+      var result = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='profile'",
+      );
+
+      if (result.isEmpty) {
+        //Se a tabela não existir, cria a tabela
+        await db.execute('''
+        CREATE TABLE profile (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        age TEXT,
+        bio TEXT,
+        imagePath TEXT,
+        FOREiGN KEY (userId) REFERENCES users(id)
+        )
+      ''');
+      }
     }
   }
 
@@ -261,5 +296,51 @@ class DatabaseHelper {
 
     // Se encontrar o código, retorna verdadeiro
     return result.isNotEmpty;
+  }
+
+  // Método para salvar o perfil
+  Future<int> saveProfile(
+    int userId,
+    String name,
+    String age,
+    String bio,
+    String? imagePath,
+  ) async {
+    final db = await database;
+    return await db.insert('profile', {
+      'userId': userId,
+      'name': name,
+      'age': age,
+      'bio': bio,
+      'imagePath': imagePath,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  // Método para atualizar o perfil
+  Future<int> updateProfile(
+    int userId,
+    String name,
+    String age,
+    String bio,
+    String? imagePath,
+  ) async {
+    final db = await database;
+    return await db.update(
+      'profile',
+      {'name': name, 'age': age, 'bio': bio, 'imagePath': imagePath},
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  // Método para recuperar o perfil
+  Future<Map<String, dynamic>?> getProfile(int userId) async {
+    final db = await database;
+    final result = await db.query(
+      'profile',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+    return result.isNotEmpty ? result.first : null;
   }
 }
