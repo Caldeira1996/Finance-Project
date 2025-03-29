@@ -500,10 +500,10 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-03-12T02:02:59.204893Z",
+  "generated": "2025-03-19T01:14:58.211076Z",
   "generator": "pub",
-  "generatorVersion": "3.7.0",
+  "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/Users/Caldeira/flutter",
-  "flutterVersion": "3.29.1",
+  "flutterVersion": "3.29.2",
   "pubCache": "file:///C:/Users/Caldeira/AppData/Local/Pub/Cache"
 }

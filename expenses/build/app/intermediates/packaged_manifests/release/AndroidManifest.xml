@@ -23,6 +23,7 @@
         android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
         android:label="expenses" >
+	android:enableOnBackInvokedCallback="true">
         <activity
             android:name="com.example.expenses.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

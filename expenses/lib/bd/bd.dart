@@ -1,4 +1,6 @@
 import 'package:async/async.dart';
+import 'package:expenses/components/transaction_list.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart' hide Transaction;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,7 +31,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 8, // Aumenta a versão para forçar a atualização
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -82,8 +84,30 @@ class DatabaseHelper {
       bio TEXT,
       imagePath TEXT,
       FOREIGN KEY (userId) REFERENCES users(id)
-)
-''');
+    )
+    ''');
+
+    // Tabel de saldo
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS wallet (
+      userId INTEGER PRIMARY KEY,
+      balance REAL NOT NULL DEFAULT 0.0,
+      FOREIGN KEY (userId) REFERENCES users(id)
+    )
+    ''');
+    print('Tabela wallet criada com sucesso!');
+
+    //Tabela para visualizar histórico de saldo na carteira - CORRIGIDO users em vez de user
+    await db.execute(''' 
+    CREATE TABLE IF NOT EXISTS balance_history (
+      id TEXT PRIMARY KEY,
+      userId INTEGER NOT NULL,
+      amount REAL NOT NULL,
+      description TEXT,
+      date TEXT NOT NULL,
+      FOREIGN KEY(userId) REFERENCES users(id)
+    )
+    ''');
   }
 
   // FUNÇÃO PARA GERAR O HASH DA SENHA
@@ -97,11 +121,17 @@ class DatabaseHelper {
   Future<int> registerUser(String name, String email, String password) async {
     final hashedPassword = generateHash(password); // gerar o hash da senha
     final db = await database;
-    return await db.insert('users', {
-      'name': name,
-      'email': email,
-      'password': hashedPassword, // Usar HASH de senha
+
+    final userID = await db.insert(tableUsers, {
+      columnName: name,
+      columnEmail: email,
+      columnPassword: hashedPassword,
     });
+
+    // Inicializa a carteira para o novo usuário
+    await ensureWalletExists(userID);
+
+    return userID;
   }
 
   //Função para excluir usuário
@@ -121,10 +151,44 @@ class DatabaseHelper {
       where: '$columnEmail = ? AND $columnPassword = ?',
       whereArgs: [email, hashedPassword], // Comparar o hash armazenado
     );
-    return result.isNotEmpty ? result.first : null;
+    print('Resultado da query: $result');
+
+    if (result.isNotEmpty) {
+      final userId = result.first['id'] as int;
+      // Garante que a carteira existe após o login
+      await ensureWalletExists(userId);
+      return result.first;
+    }
+    return null;
   }
 
-  //0 = pendente, 1 = sincronizando em Synced
+  // Método para garantir que a carteira existe
+  Future<void> ensureWalletExists(
+    int userId, [
+    double initialBalance = 0.0,
+  ]) async {
+    final db = await database;
+
+    // Verifica se a carteira já existe
+    final walletResult = await db.query(
+      'wallet',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+
+    if (walletResult.isEmpty) {
+      // Se não existir, cria a carteira
+      print(
+        'Criando carteira para o usuário $userId com saldo inicial $initialBalance',
+      );
+      await db.insert('wallet', {
+        'userId': userId,
+        'balance': initialBalance,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    } else {
+      print('Carteira já existe para o usuário $userId');
+    }
+  }
 
   // Atualiza a estrutura do banco ao mudar a versão
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -149,9 +213,96 @@ class DatabaseHelper {
         age TEXT,
         bio TEXT,
         imagePath TEXT,
-        FOREiGN KEY (userId) REFERENCES users(id)
+        FOREIGN KEY (userId) REFERENCES users(id)
         )
       ''');
+      }
+    }
+
+    if (oldVersion < 5) {
+      var result = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='wallet'",
+      );
+      if (result.isEmpty) {
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS wallet (
+          userId INTEGER PRIMARY KEY,
+          balance REAL NOT NULL DEFAULT 0.0,
+          FOREIGN KEY (userId) REFERENCES users(id)
+        )
+        ''');
+        print('Tabela wallet criada durante a atualização');
+      }
+    }
+
+    if (oldVersion < 8) {
+      // Corrige a tabela balance_history para apontar para users
+      try {
+        // Verifica se a tabela existe
+        var result = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='balance_history'",
+        );
+
+        if (result.isNotEmpty) {
+          // Salva os dados existentes
+          var existingData = await db.query('balance_history');
+
+          // Remove a tabela com referência errada
+          await db.execute('DROP TABLE IF EXISTS balance_history');
+
+          // Recria a tabela com a referência correta
+          await db.execute('''
+          CREATE TABLE IF NOT EXISTS balance_history (
+            id TEXT PRIMARY KEY,
+            userId INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            description TEXT,
+            date TEXT NOT NULL,
+            FOREIGN KEY(userId) REFERENCES users(id)
+          )
+          ''');
+
+          // Reinsere os dados
+          for (var entry in existingData) {
+            await db.insert('balance_history', entry);
+          }
+        } else {
+          // Se a tabela não existir, cria com a referência correta
+          await db.execute('''
+          CREATE TABLE IF NOT EXISTS balance_history (
+            id TEXT PRIMARY KEY,
+            userId INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            description TEXT,
+            date TEXT NOT NULL,
+            FOREIGN KEY(userId) REFERENCES users(id)
+          )
+          ''');
+        }
+
+        print('Tabela balance_history corrigida na atualização v8');
+      } catch (e) {
+        print('Erro ao corrigir tabela balance_history: $e');
+      }
+
+      // Garante que todos os usuários têm uma carteira
+      try {
+        final users = await db.query('users');
+        for (var user in users) {
+          final userId = user['id'] as int;
+          final walletExists = await db.query(
+            'wallet',
+            where: 'userId = ?',
+            whereArgs: [userId],
+          );
+
+          if (walletExists.isEmpty) {
+            await db.insert('wallet', {'userId': userId, 'balance': 0.0});
+            print('Carteira criada para usuário $userId durante atualização');
+          }
+        }
+      } catch (e) {
+        print('Erro ao garantir carteiras para usuários: $e');
       }
     }
   }
@@ -212,9 +363,40 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> deleteTransaction(String id) async {
+  Future<double?> deleteTransaction(String id) async {
     final db = await database;
-    await db.delete(tableTransactions, where: '$columnId = ?', whereArgs: [id]);
+    final transaction = await db.query(
+      tableTransactions,
+      where: '$columnId = ?',
+      whereArgs: [id],
+    );
+
+    if (transaction.isNotEmpty) {
+      final value = transaction.first[columnValue] as double;
+
+      await db.delete(
+        tableTransactions,
+        where: '$columnId = ?',
+        whereArgs: [id],
+      );
+      return value; //Retorna valor transação excluída
+    }
+    return null; //Retorna null se a transação não existir
+  }
+
+  Future<void> deleteTransactionAndUpdateBalance(
+    String transactionId,
+    int userId,
+  ) async {
+    final deletedValue = await deleteTransaction(transactionId);
+
+    if (deletedValue != null) {
+      //Adiciona o valor de volta ao saldo
+      await addToBalance(userId, deletedValue);
+      print('Transação excluída e saldo atualizado: +$deletedValue.');
+    } else {
+      print('Transação não encontrada ou não excluída.');
+    }
   }
 
   Future<void> close() async {
@@ -270,17 +452,20 @@ class DatabaseHelper {
     String verificationCode = generateVerificationCode();
 
     // Inserir o usuário no banco de dados
-    await db.insert(tableUsers, {
+    final userId = await db.insert(tableUsers, {
       columnName: name,
       columnEmail: email,
       columnPassword: hashedPassword,
       columnVerificationCode: verificationCode, // Armazenar o código
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
+    // Inicializa a carteira para o novo usuário
+    await ensureWalletExists(userId);
+
     //Enviar o email com o código de verificação
     await sendVerificationEmail(email, verificationCode);
 
-    return 1; // Retorna sucesso
+    return userId; // Retorna o ID do usuário
   }
 
   //Função para verificar o código de verificação
@@ -341,6 +526,116 @@ class DatabaseHelper {
       where: 'userId = ?',
       whereArgs: [userId],
     );
-    return result.isNotEmpty ? result.first : null;
+    if (result.isNotEmpty) {
+      return result.first..removeWhere((key, value) => value == null);
+    }
+    return null;
+  }
+
+  //------------------------------------------------------------------------
+
+  // Método para obter saldo do usuário
+  Future<double> getBalance(int userId) async {
+    // Garante que a carteira existe antes de tentar obter o saldo
+    await ensureWalletExists(userId);
+
+    final db = await database;
+    final result = await db.query(
+      'wallet',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+
+    if (result.isNotEmpty) {
+      var balanceValue = result.first['balance'];
+      if (balanceValue is int) {
+        return balanceValue.toDouble();
+      } else if (balanceValue is double) {
+        return balanceValue;
+      }
+    }
+    return 0.0;
+  }
+
+  // Método para atualizar o saldo do usuário
+  Future<void> updateBalance(int userId, double newBalance) async {
+    // Garante que a carteira existe
+    await ensureWalletExists(userId);
+
+    final db = await database;
+    await db.update(
+      'wallet',
+      {'balance': newBalance},
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+    print(
+      'Saldo atualizado para usuário $userId: R\$${newBalance.toStringAsFixed(2)}',
+    );
+  }
+
+  // Método para adicionar saldo a carteira
+  Future<void> addToBalance(int userId, double amount) async {
+    final currentBalance = await getBalance(userId);
+    final newBalance = currentBalance + amount;
+    await updateBalance(userId, newBalance);
+    print(
+      'Saldo adicionado: +R\$${amount.toStringAsFixed(2)}, Novo saldo: R\$${newBalance.toStringAsFixed(2)}',
+    );
+  }
+
+  // Método para debitar o saldo ao adicionar uma transação
+  Future<void> deductFromBalance(int userId, double amount) async {
+    final currentBalance = await getBalance(userId);
+    if (currentBalance >= amount) {
+      final newBalance = currentBalance - amount;
+      await updateBalance(userId, newBalance);
+      print(
+        'Valor debitado: -R\$${amount.toStringAsFixed(2)}, Novo saldo: R\$${newBalance.toStringAsFixed(2)}',
+      );
+    } else {
+      throw Exception('Saldo Insuficiente');
+    }
+  }
+
+  // Método para gerenciar histórico da carteira
+  Future<int> addBalanceHistory({
+    required int userId,
+    required double amount,
+    String description = '',
+  }) async {
+    final db = await database;
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    print(
+      'Adicionando entrada ao histórico: ID=$id, Valor=$amount, Descrição=$description',
+    );
+
+    return await db.insert('balance_history', {
+      'id': id,
+      'userId': userId,
+      'amount': amount,
+      'description': description,
+      'date': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getBalanceHistory(int userId) async {
+    final db = await database;
+    return await db.query(
+      'balance_history',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+    );
+  }
+
+  Future<void> deleteBalanceEntry(String entryId) async {
+    final db = await database;
+    final result = await db.delete(
+      'balance_history',
+      where: 'id = ?',
+      whereArgs: [entryId],
+    );
+    print('Entrada $entryId excluída do histórico: $result linhas afetadas');
   }
 }

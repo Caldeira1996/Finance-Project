@@ -21,7 +21,7 @@ class ChartBar extends StatelessWidget {
       // Exibe os elementos de forma vertical (em coluna).
       children: [
         //Exibe a porcentagem no topo, mas oculta se for 0
-        const SizedBox(height: 5),
+        const SizedBox(height: 0),
         // Exibe o valor formatado como moeda (exemplo: R$100.00).
         SizedBox(
           height: 25, // Define a altura do container do valor.
@@ -33,11 +33,11 @@ class ChartBar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8), // Adiciona um espaço de 5 pixels.
+        const SizedBox(height: 1), // Adiciona um espaço de 5 pixels.
         // Barra de gráfico ajustada de acordo com a porcentagem.
         SizedBox(
-          height: 70, // Define a altura da barra do gráfico.
-          width: 15, // Define a largura da barra do gráfico.
+          height: 80, // Define a altura da barra do gráfico.
+          width: 20, // Define a largura da barra do gráfico.
           child: Stack(
             // Stack permite sobrepor widgets.
             alignment:
@@ -60,12 +60,13 @@ class ChartBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(
                     5,
                   ), // Bordas arredondadas.
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 1)],
                 ),
               ),
               // Barra Coloriad animaa proporcional ao valor
               AnimatedContainer(
                 duration: const Duration(microseconds: 500),
-                height: 80 * percentage, // Altura baseaa na porcentagem
+                height: 80 * percentage, // Altura baseada na porcentagem
                 decoration: BoxDecoration(
                   color:
                       percentage > 0.7
@@ -100,7 +101,7 @@ class ChartBar extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 5), // Adiciona um espaço de 5 pixels.
+        const SizedBox(height: 1), // Adiciona um espaço de 5 pixels.
         // Exibe o rótulo, que é o dia da semana (ou qualquer outro texto para a barra).
         Text(
           label,

@@ -29,7 +29,12 @@ class TransactionList extends StatelessWidget {
                 ), // Espaçamento
                 Text(
                   'Nenhuma Transação Cadastrada!', // Mensagem de aviso
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  //style: Theme.of(context).textTheme.headlineSmall,
+                  //style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.05,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20), // Espaçamento
                 SizedBox(

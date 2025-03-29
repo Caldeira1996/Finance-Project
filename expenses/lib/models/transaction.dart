@@ -13,6 +13,15 @@ class Transaction {
 
   // Método para converter JSON para Transaction
   factory Transaction.fromJson(Map<String, dynamic> json) {
+    if (json['id'] == null ||
+        json['title'] == null ||
+        json['value'] == null ||
+        json['date'] == null) {
+      throw FormatException(
+        'Dados JSON incomplestos para criar uma Transação.',
+      );
+    }
+
     return Transaction(
       id: json['id'],
       title: json['title'],
@@ -29,5 +38,20 @@ class Transaction {
       'value': value,
       'date': date.toIso8601String(),
     };
+  }
+
+  // Cria uma copia da transação com os campos atualizados
+  Transaction copyWith({
+    String? ud,
+    String? title,
+    double? value,
+    DateTime? date,
+  }) {
+    return Transaction(
+      id: id,
+      title: title ?? this.title,
+      value: value ?? this.value,
+      date: date ?? this.date,
+    );
   }
 }

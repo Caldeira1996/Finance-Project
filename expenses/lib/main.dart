@@ -1,7 +1,10 @@
+// Versão corrigida do código Flutter
+
 import 'package:expenses/bd/bd.dart';
 import 'package:expenses/login/register.dart';
 import 'package:expenses/pages/profile.dart';
 import 'package:expenses/pages/user_management.dart';
+import 'package:expenses/pages/wallet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +27,8 @@ void main() async {
   runApp(const ExpensesApp());
 }
 
-//void main() => runApp(const ExpensesApp());
-
 class ExpensesApp extends StatefulWidget {
   const ExpensesApp({Key? key}) : super(key: key);
-  //final ThemeData tema = ThemeData();
 
   @override
   _ExpensesAppState createState() => _ExpensesAppState();
@@ -45,18 +45,15 @@ class _ExpensesAppState extends State<ExpensesApp> {
 
   @override
   Widget build(BuildContext context) {
-    //SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
-      initialRoute: '/login', //Define a tela inicial para login
+      initialRoute: '/login',
       routes: {
-        '/login': (context) => Login(), //Tela de login
+        '/login': (context) => Login(),
         '/home':
             (context) =>
                 MyHomePage(isDarkMode: _isDarkMode, toggleTheme: _toggleTheme),
         '/register': (context) => RegisterScreen(),
-        '/user-management':
-            (context) =>
-                UserManagementScreen(), // rota para gerenciamento de usuários
+        '/user-management': (context) => UserManagementScreen(),
       },
       theme: ThemeData(
         useMaterial3: false,
@@ -74,7 +71,6 @@ class _ExpensesAppState extends State<ExpensesApp> {
             color: Colors.black,
           ),
           labelLarge: TextStyle(
-            // Botões
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -119,15 +115,12 @@ class _ExpensesAppState extends State<ExpensesApp> {
           ),
         ),
       ),
-      //themeMode: ThemeMode.system, // Segue o tema do sistema claro/escuro
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  // MyHomePage({Key? key}) : super(key: key);
-
   final bool isDarkMode;
   final Function toggleTheme;
 
@@ -140,20 +133,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // Dados de login do usuário
-  final String loggedUserEmail = 'root'; // email logado
-  final String masterEmail = 'root'; // definindo o usuário master
+  final String loggedUserEmail = 'root';
+  final String masterEmail = 'root';
 
   final List<Transaction> _transactions = [];
   bool _showChart = false;
 
-  // Função para carregar as transações do banco de dados local
   @override
   void initState() {
     super.initState();
     _loadTransactions();
   }
 
-  //Função para carregar as transações do banco de dados local
   void _loadTransactions() async {
     try {
       final transactions = await DatabaseHelper.instance.getTransactions();
@@ -166,16 +157,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // Função para filtrar as transações recentes
   List<Transaction> get _recentTransactions {
     return _transactions.where((tr) {
-      return tr.date.isAfter(
-        DateTime.now().subtract(const Duration(days: 7)),
-      ); // filtra transação dos últimos 7 dias
+      return tr.date.isAfter(DateTime.now().subtract(const Duration(days: 7)));
     }).toList();
   }
 
-  // Função para adicionar transação
   void _addTransaction(String title, double value, DateTime date) async {
     final newTransaction = Transaction(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -185,33 +172,87 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     try {
-      // primeiro salva localmente
-      await DatabaseHelper.instance.insertTransaction(newTransaction);
+      final userId = 1;
+      final currentBalance = await DatabaseHelper.instance.getBalance(userId);
 
-      setState(() {
-        _transactions.add(newTransaction);
-      });
+      if (currentBalance >= value) {
+        await DatabaseHelper.instance.deductFromBalance(userId, value);
+        await DatabaseHelper.instance.insertTransaction(newTransaction);
 
-      Navigator.of(context).pop();
+        setState(() {
+          _transactions.add(newTransaction);
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Transação adicionada com sucesso!')),
-      );
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Transação adicionada com sucesso!',
+              style: TextStyle(color: Colors.green),
+            ),
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                "Saldo Insuficiente",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                "Seu saldo atual é R\$${currentBalance.toStringAsFixed(2)}. "
+                "Não é possível adicionar essa transação.",
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Fundo vermelho
+                      foregroundColor: Colors.white, // Texto branco
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          8,
+                        ), // Borda arredondada
+                      ),
+                    ),
+                    child: Text("OK"),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
     } catch (e) {
-      print('Erro ao salvar localmente: $e');
+      print('Erro ao adicionar transação: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao salvar transação: ${e.toString}'),
+          content: Text('Erro ao salvar transação: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  //Função para remover transação
   void _removeTransaction(String id) async {
-    // Exibe o dialogo de confirmação antes de remover
-    final shouldRemove =
+    final confirmado =
         await showDialog<bool>(
           context: context,
           builder:
@@ -243,10 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     child: const Text('Cancelar'),
-                    onPressed:
-                        () => Navigator.of(
-                          ctx,
-                        ).pop(false), // fecha o ialog sem remover
+                    onPressed: () => Navigator.of(ctx).pop(false),
                   ),
                   TextButton(
                     style: ButtonStyle(
@@ -267,29 +305,36 @@ class _MyHomePageState extends State<MyHomePage> {
                       'Confirmar',
                       style: TextStyle(fontSize: 16),
                     ),
-                    onPressed:
-                        () => Navigator.of(ctx).pop(true), // Confirma a remoção
+                    onPressed: () => Navigator.of(ctx).pop(true),
                   ),
                 ],
               ),
         ) ??
-        false; // Se o usuário fechar o dialog sem escolher, não remove a transação
+        false;
 
-    // Se a confirmação for verdadedira, procede com a remoção
-    if (shouldRemove) {
+    if (!confirmado) return;
+
+    //Id do usuário logado
+    final userId = 1;
+
+    // atualizar o saldo
+    await DatabaseHelper.instance.deleteTransactionAndUpdateBalance(id, userId);
+
+    setState(() {
+      _transactions.removeWhere((tx) => tx.id == id);
+    });
+
+    void deleteTransaction(transactionId) async {
       try {
-        await DatabaseHelper.instance.deleteTransaction(
-          id,
-        ); // Remove o banco e dados
+        await DatabaseHelper.instance.deleteTransaction(transactionId);
+
         setState(() {
-          _transactions.removeWhere(
-            (tr) => tr.id == id,
-          ); // remove da lista local
+          _transactions.removeWhere((tx) => tx.id == transactionId);
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Transação removida com sucesso'),
+            content: const Text('Transação removida e saldo atualizado!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -305,14 +350,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // Função para abrir o formulário de transação
-  _openTransactionFormModal(BuildContext context) {
+  Future<double> _loadBalance() async {
+    final userId = 1;
+    return await DatabaseHelper.instance.getBalance(userId);
+  }
+
+  void _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // permite que o modal ocupe mais espaço
-      backgroundColor: Colors.transparent, // Fundo transparente
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) {
-        //return TransactionForm(_addTransaction);
         return AnimatedContainer(
           duration: Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -353,6 +401,52 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<Map<String, dynamic>?> _getProfile() async {
+    final userId = 1;
+    final dbHelper = DatabaseHelper.instance;
+    return await dbHelper.getProfile(userId);
+  }
+
+  void _openImageFullScreen(String imagePath) {
+    if (imagePath != null && imagePath.isNotEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (context) => Scaffold(
+                appBar: AppBar(
+                  title: Text('Imagem de Perfil'),
+                  backgroundColor: Colors.black,
+                ),
+                body: PhotoView(
+                  imageProvider: FileImage(File(imagePath)),
+                  minScale: PhotoViewComputedScale.contained,
+                  maxScale: PhotoViewComputedScale.covered * 2,
+                  backgroundDecoration: BoxDecoration(color: Colors.black),
+                ),
+              ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadDataHome() async {
+    await _loadBalanceHome();
+  }
+
+  Future<void> _loadBalanceHome() async {
+    try {
+      final balance = await DatabaseHelper.instance.database;
+      if (mounted) {
+        setState(() {
+          return;
+        });
+      }
+      print('Saldo carregado: R\$${balance.toString()}');
+    } catch (e) {
+      print('Erro ao carregar saldo: $e');
+    }
+  }
+
   Widget _getIconButton(IconData icon, Function() fn) {
     return Platform.isIOS
         ? GestureDetector(onTap: fn, child: Icon(icon))
@@ -364,7 +458,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final mediaQuery = MediaQuery.of(context);
     bool isLandscape = mediaQuery.orientation == Orientation.landscape;
 
-    // Icones para android e IOS mudança do gráfico e lista
     final iconList = Platform.isIOS ? CupertinoIcons.refresh : Icons.list;
     final chartList =
         Platform.isIOS ? CupertinoIcons.refresh : Icons.show_chart;
@@ -376,10 +469,9 @@ class _MyHomePageState extends State<MyHomePage> {
             _showChart = !_showChart;
           });
         }),
-
       _getIconButton(
-        Platform.isIOS ? CupertinoIcons.add : Icons.add,
-        () => _openTransactionFormModal(context),
+        Platform.isIOS ? CupertinoIcons.refresh : Icons.refresh,
+        () => _loadBalanceHome(),
       ),
     ];
 
@@ -389,210 +481,228 @@ class _MyHomePageState extends State<MyHomePage> {
       elevation: 5,
     );
 
-    // Adicionando Media query
     final availableHeight =
         mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
 
-    final bodyPage = SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            if (_showChart || !isLandscape)
-              SizedBox(
-                height: availableHeight * (isLandscape ? 0.75 : 0.25),
-                child: Chart(_recentTransactions),
-              ),
-            if (!_showChart || !isLandscape)
-              SizedBox(
-                height: availableHeight * (isLandscape ? 1 : 0.65),
-                child: TransactionList(_transactions, _removeTransaction),
-              ),
-          ],
-        ),
-      ),
-    );
+    return FutureBuilder<double>(
+      future: _loadBalance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        final balance = snapshot.data ?? 0.0;
 
-    //Modal para abrir a imagem no menu ao lado (DRAWER)
-    void _openImageFullScreen(String _image) {
-      if (_image != null && _image.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder:
-                (context) => Scaffold(
-                  appBar: AppBar(
-                    title: Text('Imagem de Perfil'),
-                    backgroundColor: Colors.black,
-                  ),
-                  body: PhotoView(
-                    imageProvider: FileImage(File(_image!)),
-                    minScale: PhotoViewComputedScale.contained,
-                    maxScale: PhotoViewComputedScale.covered * 2,
-                    backgroundDecoration: BoxDecoration(color: Colors.black),
-                  ),
-                ),
-          ),
-        );
-      }
-    }
-
-    Future<Map<String, dynamic>?> _getProfile() async {
-      final userId = 1;
-      final dbHelper = DatabaseHelper.instance;
-      return await dbHelper.getProfile(userId);
-    }
-
-    return Platform.isIOS
-        ? CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: const Text('Despesas Pessoais'),
-            trailing: Row(mainAxisSize: MainAxisSize.min, children: actions),
-          ),
-          child: bodyPage,
-        )
-        : Scaffold(
-          appBar: appBar,
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                FutureBuilder<Map<String, dynamic>?>(
-                  future: _getProfile(), // Função para caminho da foto
-                  builder: (context, snapshot) {
-                    final profile = snapshot.data;
-                    final imagePath = profile?['imagePath'];
-
-                    return UserAccountsDrawerHeader(
-                      accountName: Text(profile?['name'] ?? 'Nome de usuário'),
-                      accountEmail: Text('email@dominio.com'),
-                      currentAccountPicture: GestureDetector(
-                        onTap: () {
-                          if (imagePath != null) {
-                            _openImageFullScreen(imagePath);
-                          }
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: Colors.white,
-                          backgroundImage:
-                              imagePath != null
-                                  ? FileImage(File(imagePath))
-                                  : null,
-
-                          child:
-                              imagePath == null
-                                  ? Icon(Icons.person, color: Colors.purple)
-                                  : null,
+        final bodyPage = SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(1),
+                  margin: EdgeInsets.only(top: 0),
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.home),
-                  title: Text('Inicio'),
-                  onTap: () {
-                    Navigator.pop(context); //Fecha o menu
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.account_circle),
-                  title: Text('Perfil'),
-                  onTap: () {
-                    Navigator.pop(context); //Fecha o menu
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfileScreen()),
-                    );
-                  },
-                ),
-
-                ListTile(
-                  leading: Icon(Icons.wallet),
-                  title: Text('Carteira'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-
-                ListTile(
-                  leading: Icon(Icons.add_chart_outlined),
-                  title: Text('Investimentos'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-
-                ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Configurações'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-
-                // Adiciona a opção de gerenciamento de usuários para o master
-                if (loggedUserEmail == masterEmail) // verificação de usuário
-                  ListTile(
-                    leading: Icon(Icons.admin_panel_settings),
-                    title: Text('Gerenciar Usuários'),
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/user-management',
-                      ); // Rota para gerenciar usuários
-                    },
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Saldo Atual',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 0),
+                        Text(
+                          'R\$${balance.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
-                const SizedBox(height: 10),
-
-                ListTile(
-                  leading: Icon(
-                    // _isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                    widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                ),
+                if (_showChart || !isLandscape)
+                  SizedBox(
+                    height: availableHeight * (isLandscape ? 0.7 : 0.26),
+                    child: Chart(_recentTransactions),
                   ),
-                  title: Text(widget.isDarkMode ? 'Tema Claro' : 'Tema Escuro'),
-                  onTap: () {
-                    widget.toggleTheme(); // altera o tema
-                    Navigator.pop(context); // fecha o menu
-                  },
-                ),
-
-                const SizedBox(height: 10),
-
-                ListTile(
-                  leading: Icon(Icons.exit_to_app),
-                  title: Text('Sair'),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/login',
-                    ); // volta para o login
-                  },
-                ),
+                if (!_showChart || !isLandscape)
+                  SizedBox(
+                    height: availableHeight * (isLandscape ? 0.9 : 0.65),
+                    child: TransactionList(_transactions, _removeTransaction),
+                  ),
               ],
             ),
           ),
-          body: bodyPage,
-          floatingActionButton:
-              Platform.isIOS
-                  ? CupertinoButton(
-                    color: CupertinoColors.activeBlue,
-                    padding: EdgeInsets.all(16),
-                    borderRadius: BorderRadius.circular(30),
-                    child: Text(
-                      'Adicionar',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () => _openTransactionFormModal(context),
-                  )
-                  : FloatingActionButton(
-                    child: Icon(Icons.add_shopping_cart_sharp),
-                    onPressed: () => _openTransactionFormModal(context),
-                  ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
         );
+
+        return Platform.isIOS
+            ? CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                middle: const Text('Despesas Pessoais'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                ),
+              ),
+              child: bodyPage,
+            )
+            : Scaffold(
+              appBar: appBar,
+              drawer: Drawer(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    FutureBuilder<Map<String, dynamic>?>(
+                      future: _getProfile(),
+                      builder: (context, snapshot) {
+                        final profile = snapshot.data;
+                        final imagePath = profile?['imagePath'];
+
+                        return UserAccountsDrawerHeader(
+                          accountName: Text(
+                            profile?['name'] ?? 'Nome de usuário',
+                          ),
+                          accountEmail: Text('email@dominio.com'),
+                          currentAccountPicture: GestureDetector(
+                            onTap: () {
+                              if (imagePath != null) {
+                                _openImageFullScreen(imagePath);
+                              }
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              backgroundImage:
+                                  imagePath != null
+                                      ? FileImage(File(imagePath))
+                                      : null,
+                              child:
+                                  imagePath == null
+                                      ? Icon(Icons.person, color: Colors.purple)
+                                      : null,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.home),
+                      title: Text('Inicio'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.account_circle),
+                      title: Text('Perfil'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfileScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.wallet),
+                      title: Text('Carteira'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WalletScreen(userId: 1),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.add_chart_outlined),
+                      title: Text('Investimentos'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.settings),
+                      title: Text('Configurações'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    if (loggedUserEmail == masterEmail)
+                      ListTile(
+                        leading: Icon(Icons.admin_panel_settings),
+                        title: Text('Gerenciar Usuários'),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/user-management');
+                        },
+                      ),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      leading: Icon(
+                        widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                      ),
+                      title: Text(
+                        widget.isDarkMode ? 'Tema Claro' : 'Tema Escuro',
+                      ),
+                      onTap: () {
+                        widget.toggleTheme();
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      leading: Icon(Icons.exit_to_app),
+                      title: Text('Sair'),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              body: bodyPage,
+              floatingActionButton:
+                  Platform.isIOS
+                      ? CupertinoButton(
+                        color: CupertinoColors.activeBlue,
+                        padding: EdgeInsets.all(16),
+                        borderRadius: BorderRadius.circular(50),
+                        child: Text(
+                          'Adicionar',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                        onPressed: () => _openTransactionFormModal(context),
+                      )
+                      : FloatingActionButton(
+                        child: Icon(Icons.add_shopping_cart_sharp),
+                        onPressed: () => _openTransactionFormModal(context),
+                      ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+            );
+      },
+    );
   }
 }

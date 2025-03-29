@@ -3584,6 +3584,7 @@ io.flutter.Log:
     public static void v(java.lang.String,java.lang.String,java.lang.Throwable)
     public static void wtf(java.lang.String,java.lang.String)
     public static void wtf(java.lang.String,java.lang.String,java.lang.Throwable)
+io.flutter.app.FlutterApplication
 io.flutter.embedding.android.AndroidTouchProcessor$PointerChange
 io.flutter.embedding.android.AndroidTouchProcessor$PointerDeviceKind
 io.flutter.embedding.android.AndroidTouchProcessor$PointerSignalKind
